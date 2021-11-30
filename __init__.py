@@ -8,6 +8,7 @@ from .analysis.distances import DistWrap
 from .analysis.interface_contacts import InterfaceContactWrap
 from .analysis.multi_interface_dissociation import MultipleInterfaceDissociationWrap
 from .analysis.multi_interface_dissociation import ConstrainedTargetInterfaceDissociationWrap
+from .analysis.axial_angle import AxialAngleWrap
 
 # simulations wrapper
 from .md_gen.gromax import Gromax, GromaxProcessing
