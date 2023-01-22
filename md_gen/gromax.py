@@ -60,7 +60,7 @@ class GromaxProcessing(base):
                 "echo '" + self.align_group + " " +  self.align_group + " 0' | gmx trjconv " + \
                 "-f frame0.xtc -o frame0_aligned.xtc -s md.tpr -center " + \
                 "-pbc "+self.pbc+" -ur "+self.ur
-                        trjconv_output_groups = \
+            trjconv_output_groups = \
                 "echo '" + self.align_group + " " + self.align_group + " " + self.output_group + \
                 "' | gmx trjconv -f frame0.xtc -o frame0_masses.xtc" + \
                 " -s md.tpr -center -pbc "+self.pbc+" -ur "+self.ur
