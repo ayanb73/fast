@@ -57,7 +57,7 @@ def _calculate_number_of_contacts(traj, interface_list, dist_cutoff,
 
             # returns distances for each residue-residue contact in each frame of the trajectory
             # distances is shape=(n_frames, n_pairs)
-            distances = md.compute_contacts(traj, rid_pairs, scheme='closest')[0]
+            distances = md.compute_contacts(traj, rid_pairs, scheme='closest-heavy')[0]
 
             contacts = contacts + np.sum(distances < dist_cutoff, axis=1)
 

@@ -78,6 +78,19 @@ class GromaxProcessing(base):
                 trjconv_alignment += " -n " + self.index_file
                 trjconv_output_groups += " -n " + self.index_file
             trjconv_cmd = trjconv_alignment + "\n" + trjconv_output_groups + "\n"        
+        elif self.pbc == 'nojump':
+            trjconv_alignment = \
+                "echo '" + self.center_group + " 0' | gmx trjconv " + \
+                "-f frame0.xtc -o frame0_aligned.xtc -s md.tpr -center " + \
+                "-pbc "+self.pbc+" -ur "+self.ur
+            trjconv_output_groups = \
+                "echo '" + self.center_group + " " + self.output_group + \
+                "' | gmx trjconv -f frame0.xtc -o frame0_masses.xtc" + \
+                " -s md.tpr -center -pbc "+self.pbc+" -ur "+self.ur
+            if self.index_file is not None:
+                trjconv_alignment += " -n " + self.index_file
+                trjconv_output_groups += " -n " + self.index_file
+            trjconv_cmd = trjconv_alignment + "\n" + trjconv_output_groups + "\n"
         else:
             trjconv_alignment = \
                 "echo '" + self.align_group + " 0' | gmx trjconv " + \
@@ -124,7 +137,7 @@ class Gromax(base):
         Maximum number of gromacs warnings to allow.
     min_run : bool, default = False,
         Is this a minimization run? Helps with output naming.
-    source_file : str, default = None,
+    source_dir : str, default = None,
         The path to a gromacs GMXRC file to source before running
         simulations.
     env_exports : str, default=None,
@@ -133,7 +146,7 @@ class Gromax(base):
     def __init__(
             self, top_file, mdp_file, n_cpus=1, n_gpus=None,
             processing_obj=None, index_file=None, itp_files=None,
-            submission_obj=None, max_warn=2, min_run=False, source_file=None,
+            submission_obj=None, max_warn=2, min_run=False, source_dir=None,
             env_exports=None, **kwargs):
         """initialize some gromax files and parameters"""
         self.top_file = os.path.abspath(top_file)
@@ -174,8 +187,8 @@ class Gromax(base):
         self.max_warn = str(max_warn)
         self.min_run = min_run
         # get full path of source_file
-        if source_file is None:
-            self.source_file = source_file
+        if source_dir is None:
+            self.source_file = source_dir
         else:
             self.source_file = os.path.abspath(source_file)
             # check for singularity sif file
@@ -243,7 +256,22 @@ class Gromax(base):
         if self.source_file is None or self.singularity:
             source_cmd = ''
         else:
-            source_cmd = 'source ' + self.source_file + '\n\n'
+            flexible_source='''
+CardType=`nvidia-smi -L | head -n 1`
+if [[ "$CardType" =~ P100 ]]
+then
+    gpu_build=P100
+elif [[ "$CardType" =~ RTX.6000 ]]
+then
+    gpu_build=QR6
+elif [[ "$CardType" =~ A5000 ]]
+then
+    gpu_build=A5000
+else
+    echo $CardType is weird. Exiting now.
+    exit
+fi'''
+            source_cmd = 'source ' + self.source_file +'_${gpu_build}/bin/GMXRC' + '\n\n'
         # generate grompp command
         grompp_cmd = 'gmx grompp -f ' + self.mdp_file + ' -c ' + \
             self.start_name + ' -p ' + self.top_file + ' -o ' + \
