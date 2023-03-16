@@ -271,7 +271,7 @@ else
     echo $CardType is weird. Exiting now.
     exit
 fi'''
-            source_cmd = 'source ' + self.source_file +'_${gpu_build}/bin/GMXRC' + '\n\n'
+            source_cmd = flexible_source + '\n\nsource ' + self.source_file +'_${gpu_build}/bin/GMXRC' + '\n\n'
         # generate grompp command
         grompp_cmd = 'gmx grompp -f ' + self.mdp_file + ' -c ' + \
             self.start_name + ' -p ' + self.top_file + ' -o ' + \
