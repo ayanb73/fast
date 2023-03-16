@@ -190,7 +190,7 @@ class Gromax(base):
         if source_dir is None:
             self.source_file = source_dir
         else:
-            self.source_file = os.path.abspath(source_file)
+            self.source_file = os.path.abspath(source_dir)
             # check for singularity sif file
             if ".sif" in self.source_file:
                 self.singularity = True
